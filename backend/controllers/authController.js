@@ -6,7 +6,7 @@ import transpoter from "../config/nodemailer.js";
 // Register Function
 export const register = async (req, res) => {
   const { name, email, password } = req.body;
-  // Check if all fields are filled 
+  // Check if all fields are filled
   if (!name || !email || !password) {
     return res.status(400).json({
       success: false,
@@ -34,12 +34,12 @@ export const register = async (req, res) => {
     });
     await user.save();
 
-    //Generating a token 
+    //Generating a token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
 
-    //Setting a cookie  
+    //Setting a cookie
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -53,11 +53,11 @@ export const register = async (req, res) => {
       to: email,
       subject: "Welcome to Hello world",
       text: `welcome to my Auth Website. Your account has been 
-      created with email id: ${email}`
-    }
+      created with email id: ${email}`,
+    };
     await transpoter.sendMail(mailOptions);
 
-    // Returning a success message 
+    // Returning a success message
     return res.json({
       success: true,
       message: "registration successful",
@@ -71,7 +71,7 @@ export const register = async (req, res) => {
   }
 };
 
-// Login Function 
+// Login Function
 export const login = async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -140,18 +140,82 @@ export const logout = async (req, res) => {
 
 //Send Verification OTP to the user's Email
 export const sendVerifyOtp = async (req, res) => {
-  try{
-    const {userId} = req.body;
+  try {
+    const { userId } = req.body;
 
     const user = await userModel.findById(userId);
-    if(user.isAccountVerified){
+    if (user.isAccountVerified) {
       return res.json({
         success: false,
-        message: "Account already verified"
-      })
+        message: "Account already verified",
+      });
+    }
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+
+    user.verifyOtp = otp;
+    user.verifyOtpExpireAt = Date.now() + 24 * 60 * 60 * 1000;
+    await user.save();
+
+    const mailOptions = {
+      from: process.env.SENDER_EMAIL,
+      to: user.email,
+      subject: "Account Vaerification OTP",
+      text: `Your OTP is: ${otp}. Verify your account using this OTP.`,
+    };
+    await transpoter.sendMail(mailOptions);
+
+    return res.json({
+      success: true,
+      message: "OTP sent successfully",
+    })
+  } catch (err) {
+    return res.json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
+
+export const verifyEmail = async (req, res) => {
+  const {userId, otp} = req.body;
+  if(!userId || !otp){
+    return res.json({
+      success: false,
+      message: "Missing details" 
+    });
+  }
+
+  try{
+    const user = await userModel.findById(userId);
+    if(!user){
+      return res.json({
+        success: false,
+        message: "User not found"
+      });
     }
 
+    if(user.verifyOtp !== "" || user.verifyOtp !== otp){
+      return res.json({
+        success: false,
+        message: "Invalid OTP"
+      });
+    }
+    if(user.verifyOtpExpireAt < Date.now()){
+      return res.json({
+        success: false,
+        message: "OTP expired"
+      });
+    }
+    user.isAccountVerified = true;
+    user.verifyOtp = "";
+    user.verifyOtpExpireAt = 0;
 
+    await user.save();
+    return res.json({
+      success: true,
+      message: "Account verified successfully"
+    })
   }catch(err){
     return res.json({
       success: false,
