@@ -141,9 +141,15 @@ export const logout = async (req, res) => {
 //Send Verification OTP to the user's Email
 export const sendVerifyOtp = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const userId = req.body.userId; // Always set by userAuth middleware
 
     const user = await userModel.findById(userId);
+    if (!user) {
+      return res.json({
+        success: false,
+        message: "User not found",
+      });
+    }
     if (user.isAccountVerified) {
       return res.json({
         success: false,
