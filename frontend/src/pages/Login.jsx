@@ -24,11 +24,7 @@ const Login = () => {
         <form>
           <div className="mb-4 flex items-center gap-3 w-full px-5 py-2.5 rounded-full bg-[#333A5C]">
             <img src={assets.person_icon} alt="" />
-            <input
-              type="text"
-              placeholder="Full Name"
-              required
-              className="text-white outline-none"
+            <input type="text" placeholder="Full Name" required className="text-white outline-none"
             />
           </div>
           <div className="mb-4 flex items-center gap-3 w-full px-5 py-2.5 rounded-full bg-[#333A5C]">
@@ -49,13 +45,10 @@ const Login = () => {
               className="text-white outline-none"
             />
           </div>
-
           <p className="mb-4 text-indigo-500 cursor-pointer">
             Forget Password?
           </p>
-          <button>
-            {state}
-          </button>
+          <button>{state}</button>
         </form>
       </div>
     </div>
