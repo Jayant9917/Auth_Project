@@ -3,6 +3,9 @@ import { assets } from "../assets/assets";
 
 const Login = () => {
   const [state, setState] = useState("Sign Up");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   return (
     <div className="flex items-center justify-center min-h-screen px-6 sm:px-0 bg-gradient-to-br from-blue-200 to-purple-400">
@@ -22,14 +25,25 @@ const Login = () => {
         </p>
 
         <form>
-          <div className="mb-4 flex items-center gap-3 w-full px-5 py-2.5 rounded-full bg-[#333A5C]">
-            <img src={assets.person_icon} alt="" />
-            <input type="text" placeholder="Full Name" required className="text-white outline-none"
-            />
-          </div>
+          {state === "Sign Up" && (
+            <div className="mb-4 flex items-center gap-3 w-full px-5 py-2.5 rounded-full bg-[#333A5C]">
+              <img src={assets.person_icon} alt="" />
+              <input
+                onChange={e => setName(e.target.value)}
+                value={name}
+                type="text"
+                placeholder="Full Name"
+                required
+                className="text-white outline-none"
+              />
+            </div>
+          )}
+
           <div className="mb-4 flex items-center gap-3 w-full px-5 py-2.5 rounded-full bg-[#333A5C]">
             <img src={assets.mail_icon} alt="" />
             <input
+              onChange={e => setEmail(e.target.value)}
+              value={email}
               type="email"
               placeholder="Email ID"
               required
@@ -39,6 +53,8 @@ const Login = () => {
           <div className="mb-4 flex items-center gap-3 w-full px-5 py-2.5 rounded-full bg-[#333A5C]">
             <img src={assets.lock_icon} alt="" />
             <input
+              onChange={e => setPassword(e.target.value)}
+              value={password}
               type="password"
               placeholder="Password"
               required
@@ -48,8 +64,26 @@ const Login = () => {
           <p className="mb-4 text-indigo-500 cursor-pointer">
             Forget Password?
           </p>
-          <button>{state}</button>
+          <button className="w-full py-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-900 text-white font-medium">
+            {state}
+          </button>
         </form>
+
+        {state === "Sign Up" ? (
+          <p className="text-gray-400 text-center text-sm mt-4">
+            Already have an account?{" "}
+            <span onClick={() => setState("Login")} className="text-blue-400 cursor-pointer underline">
+              Login Here
+            </span>
+          </p>
+        ) : (
+          <p className="text-gray-400 text-center text-sm mt-4">
+            Don't have an account?{" "}
+            <span onClick={() => setState("Sign Up")} className="text-blue-400 cursor-pointer underline">
+              Sign Up
+            </span>
+          </p>
+        )}
       </div>
     </div>
   );
